@@ -1,0 +1,77 @@
+#include <iostream>
+#include <fstream>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
+void listFiles(const fs::path& path) {
+    for (const auto& entry : fs::directory_iterator(path)) {
+        std::cout << entry.path().filename().string() << std::endl;
+    }
+}
+
+void createDirectory(const fs::path& path) {
+    if (fs::create_directory(path)) {
+        std::cout << "Directory created successfully." << std::endl;
+    } else {
+        std::cout << "Failed to create directory." << std::endl;
+    }
+}
+
+void copyFile(const fs::path& source, const fs::path& destination) {
+    try {
+        fs::copy(source, destination);
+        std::cout << "File copied successfully." << std::endl;
+    } catch (fs::filesystem_error& e) {
+        std::cout << "Error: " << e.what() << std::endl;
+    }
+}
+
+void moveFile(const fs::path& source, const fs::path& destination) {
+    try {
+        fs::rename(source, destination);
+        std::cout << "File moved successfully." << std::endl;
+    } catch (fs::filesystem_error& e) {
+        std::cout << "Error: " << e.what() << std::endl;
+    }
+}
+
+int main() {
+    std::string command;
+    fs::path currentPath = fs::current_path();
+
+    std::cout << "Welcome to the Command-Line File Manager!" << std::endl;
+    std::cout << "Current directory: " << currentPath << std::endl;
+
+    while (true) {
+        std::cout << "\nEnter a command (ls, cd, mkdir, cp, mv, exit): ";
+        std::cin >> command;
+
+        if (command == "ls") {
+            listFiles(currentPath);
+        } else if (command == "cd") {
+            std::string dir;
+            std::cin >> dir;
+            currentPath /= dir;
+            std::cout << "Changed directory to: " << currentPath << std::endl;
+        } else if (command == "mkdir") {
+            std::string dir;
+            std::cin >> dir;
+            createDirectory(currentPath / dir);
+        } else if (command == "cp") {
+            std::string src, dest;
+            std::cin >> src >> dest;
+            copyFile(currentPath / src, currentPath / dest);
+        } else if (command == "mv") {
+            std::string src, dest;
+            std::cin >> src >> dest;
+            moveFile(currentPath / src, currentPath / dest);
+        } else if (command == "exit") {
+            break;
+        } else {
+            std::cout << "Invalid command." << std::endl;
+        }
+    }
+
+    return 0;
+}
