@@ -1,0 +1,57 @@
+#include <iostream>
+#include <string>
+#include <map>
+#include <ctime>
+
+// Function to mock sentiment analysis
+std::string analyzeSentiment(const std::string& input) {
+    if (input.find("good") != std::string::npos || input.find("happy") != std::string::npos) {
+        return "positive";
+    } else if (input.find("bad") != std::string::npos || input.find("sad") != std::string::npos) {
+        return "negative";
+    } else {
+        return "neutral";
+    }
+}
+
+// Function to handle complex questions
+std::string handleComplexQuestion(const std::string& input) {
+    if (input.find("time") != std::string::npos) {
+        time_t now = time(0);
+        char* dt = ctime(&now);
+        return std::string("The current time is: ") + dt;
+    }
+    // Add more conditions for complex questions as needed
+    return "I don't know the answer to that question.";
+}
+
+// Function to manage dialogue
+void manageDialogue(const std::string& input) {
+    static std::map<std::string, std::string> conversationState;
+
+    std::string sentiment = analyzeSentiment(input);
+    std::cout << "Sentiment: " << sentiment << std::endl;
+
+    if (input.find("hello") != std::string::npos) {
+        conversationState["greeting"] = "true";
+        std::cout << "Hi there! How can I help you today?" << std::endl;
+    } else if (conversationState["greeting"] == "true") {
+        std::cout << handleComplexQuestion(input) << std::endl;
+    } else {
+        std::cout << "I'm not sure how to respond to that." << std::endl;
+    }
+}
+
+int main() {
+    std::string input;
+    std::cout << "Welcome to the AI Chatbot!" << std::endl;
+
+    while (true) {
+        std::cout << "You: ";
+        std::getline(std::cin, input);
+        if (input == "exit") break;
+        manageDialogue(input);
+    }
+
+    return 0;
+}
